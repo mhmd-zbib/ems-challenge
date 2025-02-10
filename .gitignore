@@ -7,3 +7,10 @@
 
 # Database
 *.sqlite
+
+public/uploads/*
+!public/uploads/.gitkeep
+public/uploads/photos/*
+!public/uploads/photos/.gitkeep
+public/uploads/documents/*
+!public/uploads/documents/.gitkeep
