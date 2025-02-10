@@ -1,34 +1,29 @@
+export interface NewEmployee {
+  full_name: string;
+  email: string;
+  phone_number?: string;
+  date_of_birth: string;
+  job_title: string;
+  department: string;
+  salary: number;
+  start_date: string;
+  end_date?: string;
+  photo_path?: string;
+  is_active?: boolean;
+}
+
+export interface ValidationErrors {
+  [key: string]: string;
+}
+
 export interface Employee {
-    id?: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phoneNumber: string;
-    dateOfBirth: string;
-    jobTitle: string;
-    department: string;
-    salary: number;
-    startDate: string;
-    endDate?: string;
-    photo?: File | null;
-    createdAt?: string;
-    updatedAt?: string;
-    createdBy?: string;
-    updatedBy?: string;
-}
-
-export type EmployeeFormData = Omit<Employee, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'>;
-
-export interface EmployeeErrors {
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    phoneNumber?: string;
-    dateOfBirth?: string;
-    jobTitle?: string;
-    department?: string;
-    salary?: string;
-    startDate?: string;
-    endDate?: string;
-    photo?: string;
-}
+  id: number;
+  full_name: string;
+  email: string;
+  date_of_birth: string;
+  job_title: string;
+  department: string;
+  salary: number;
+  start_date: string;
+  photo_path?: string;
+} 

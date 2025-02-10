@@ -1,56 +1,119 @@
-import { EmployeeFormData, EmployeeErrors } from '../types/employee';
-import { MINIMUM_AGE, MINIMUM_SALARY } from '../constants/employee';
+import type { NewEmployee, ValidationErrors } from "~/types/employee";
 
-export function validateEmployeeForm(data: EmployeeFormData): EmployeeErrors {
-    const errors: EmployeeErrors = {};
+export const validateEmployee = (employee: Partial<NewEmployee>): ValidationErrors => {
+  const errors: ValidationErrors = {};
+
+  // Required fields with database constraints
+  if (!employee.full_name?.trim()) {
+    errors.full_name = "Full name is required";
+  }
+
+  if (!employee.email?.trim()) {
+    errors.email = "Email is required";
+  } else {
+    // Match SQL CHECK constraint: email LIKE '%_@__%.__%'
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(employee.email)) {
+      errors.email = "Invalid email format";
+    }
+  }
+
+  if (!employee.date_of_birth) {
+    errors.date_of_birth = "Date of birth is required";
+  } else {
+    // Application-level age validation
+    const birthDate = new Date(employee.date_of_birth);
     const today = new Date();
-
-    // Required fields
-    if (!data.firstName?.trim()) errors.firstName = 'First name is required';
-    if (!data.lastName?.trim()) errors.lastName = 'Last name is required';
-
-    // Email validation
-    if (!data.email?.trim()) {
-        errors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-        errors.email = 'Invalid email format';
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
     }
 
-    // Phone validation (basic)
-    if (data.phoneNumber && !/^\+?[\d\s-()]+$/.test(data.phoneNumber)) {
-        errors.phoneNumber = 'Invalid phone number format';
+    if (age < 18) {
+      errors.date_of_birth = "Employee must be at least 18 years old";
     }
+  }
 
-    // Date of Birth validation
-    if (data.dateOfBirth) {
-        const birthDate = new Date(data.dateOfBirth);
-        const age = today.getFullYear() - birthDate.getFullYear();
-        if (age < MINIMUM_AGE) {
-            errors.dateOfBirth = `Employee must be at least ${MINIMUM_AGE} years old`;
-        }
+  if (!employee.job_title?.trim()) {
+    errors.job_title = "Job title is required";
+  }
+
+  if (!employee.department?.trim()) {
+    errors.department = "Department is required";
+  }
+
+  if (!employee.salary) {
+    errors.salary = "Salary is required";
+  } else {
+    // Match SQL CHECK constraint: salary >= 15000
+    if (employee.salary < 15000) {
+      errors.salary = "Salary must be at least 15000";
     }
+  }
 
-    // Professional info validation
-    if (!data.jobTitle?.trim()) errors.jobTitle = 'Job title is required';
-    if (!data.department?.trim()) errors.department = 'Department is required';
-
-    // Salary validation
-    if (!data.salary) {
-        errors.salary = 'Salary is required';
-    } else if (data.salary < MINIMUM_SALARY) {
-        errors.salary = `Salary must be at least $${MINIMUM_SALARY}`;
+  if (!employee.start_date) {
+    errors.start_date = "Start date is required";
+  } else if (employee.end_date) {
+    // Match SQL CHECK constraint: start_date <= COALESCE(end_date, start_date)
+    if (new Date(employee.start_date) > new Date(employee.end_date)) {
+      errors.start_date = "Start date must be before end date";
     }
+  }
 
-    // Date validations
-    if (!data.startDate) {
-        errors.startDate = 'Start date is required';
-    } else if (new Date(data.startDate) > today) {
-        errors.startDate = 'Start date cannot be in the future';
+  // Optional fields validation
+  if (employee.phone_number) {
+    const phoneRegex = /^\+?[\d\s-]{10,}$/;
+    if (!phoneRegex.test(employee.phone_number)) {
+      errors.phone_number = "Invalid phone number format";
     }
+  }
 
-    if (data.endDate && data.startDate && new Date(data.endDate) < new Date(data.startDate)) {
-        errors.endDate = 'End date must be after start date';
+  if (employee.photo_path) {
+    const validImageTypes = ['jpg', 'jpeg', 'png', 'gif'];
+    const extension = employee.photo_path.split('.').pop()?.toLowerCase();
+    if (!extension || !validImageTypes.includes(extension)) {
+      errors.photo = "Invalid image format. Allowed: JPG, PNG, GIF";
     }
+  }
 
-    return errors;
-}
+  return errors;
+};
+
+export function validateDocuments(files: { 
+  cv?: File, 
+  id_document?: File 
+}) {
+  const errors: Record<string, string> = {};
+
+  if (files.cv && files.cv.size > 10 * 1024 * 1024) {
+    errors.cv = "CV file must be less than 10MB";
+  }
+
+  if (files.id_document && files.id_document.size > 10 * 1024 * 1024) {
+    errors.id_document = "ID document must be less than 10MB";
+  }
+
+  const allowedCvTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+
+  const allowedIdTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/png'
+  ];
+
+  if (files.cv && !allowedCvTypes.includes(files.cv.type)) {
+    errors.cv = "Please upload a PDF or Word document";
+  }
+
+  if (files.id_document && !allowedIdTypes.includes(files.id_document.type)) {
+    errors.id_document = "Please upload a PDF or image file";
+  }
+
+  return errors;
+} 

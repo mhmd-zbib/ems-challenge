@@ -23,8 +23,6 @@ CREATE TABLE employees
     is_active     BOOLEAN  DEFAULT true,
     created_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at    DATETIME DEFAULT CURRENT_TIMESTAMP,
-    CHECK (date_of_birth <= date ('now', '-18 years'
-) ), -- Ensure employee is at least 18
     CHECK (salary >= 15000),
     CHECK (start_date <= COALESCE(end_date, start_date)),
     CHECK (email LIKE '%_@__%.__%')

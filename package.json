@@ -8,9 +8,10 @@
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "setup_db": "node ./scripts/setup_db.js",
-    "seed": "node ./scripts/seed.js"
+    "seed": "npx tsx app/db/seed.ts"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@react-router/fs-routes": "^7.1.5",
     "@react-router/node": "^7.1.5",
     "@react-router/serve": "^7.1.5",
