@@ -5,6 +5,9 @@ import { useState } from "react"
 import { FormInput } from "~/components/form/FormInput"
 import { NavLink } from "~/components/navigation/NavLink"
 import { Button } from "~/components/form/Button"
+import { PageLayout } from "~/components/layout/PageLayout"
+import { ContentHeader } from "~/components/layout/ContentHeader"
+import { DataTable } from "~/components/table/DataTable"
 
 const ITEMS_PER_PAGE = 10
 
@@ -107,127 +110,42 @@ export default function EmployeesPage() {
     navigate(`/employees/${employeeId}`);
   };
 
+  const columns = [
+    { key: "id", label: "ID", width: "w-[80px]" },
+    { key: "full_name", label: "Full Name", width: "w-[250px]" },
+    { key: "email", label: "Email", width: "w-[250px]" },
+    { key: "job_title", label: "Job Title", width: "w-[200px]" },
+    { key: "department", label: "Department", width: "w-[200px]" },
+    { 
+      key: "start_date", 
+      label: "Start Date", 
+      width: "w-[150px]",
+      format: (value: string) => new Date(value).toLocaleDateString()
+    },
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <nav className="bg-white shadow-sm mb-8 rounded-lg">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between h-14">
-            <div className="flex">
-              <div className="flex space-x-8">
-                <NavLink href="/employees">
-                  Employees
-                </NavLink>
-                <NavLink href="/timesheets">
-                  Timesheets
-                </NavLink>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <NavLink
-                href="/employees/new"
-              >
-                Add Employee
-              </NavLink>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <PageLayout 
+      title="Employees" 
+      addButtonLink="/employees/new" 
+      addButtonText="Add Employee"
+    >
+      <ContentHeader
+        title="Employees"
+        searchTerm={searchTerm}
+        onSearchChange={(value) => setSearchTerm(value)}
+        onSearch={handleSearch}
+      />
 
       <div className="bg-white shadow rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Employees</h1>
-            </div>
-            <form onSubmit={handleSearch}>
-              <div className="flex gap-3">
-                <FormInput
-                  type="search"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search employees"
-                  className="w-[300px] h-12 px-4 text-lg rounded-lg"
-                />
-                <Button
-                  type="submit"
-                >
-                  Search
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr className="bg-gray-50">
-                {[
-                  { key: "id", label: "ID", width: "w-[80px]" },
-                  { key: "full_name", label: "Full Name", width: "w-[250px]" },
-                  { key: "email", label: "Email", width: "w-[250px]" },
-                  { key: "job_title", label: "Job Title", width: "w-[200px]" },
-                  { key: "department", label: "Department", width: "w-[200px]" },
-                  { key: "start_date", label: "Start Date", width: "w-[150px]" },
-                ].map(({ key, label, width }) => (
-                  <th
-                    key={key}
-                    className={`${width} px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100`}
-                    onClick={() => handleSort(key)}
-                  >
-                    <div className="flex items-center gap-1">
-                      {label}
-                      {sortBy === key && (
-                        <span className="text-blue-500">
-                          {sortOrder === "asc" ? "↑" : "↓"}
-                        </span>
-                      )}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {employees.map((employee) => (
-                <tr 
-                  key={employee.id} 
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => handleRowClick(employee.id)}
-                  role="row"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleRowClick(employee.id);
-                    }
-                  }}
-                >
-                  <td className="w-[80px] px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {employee.id}
-                  </td>
-                  <td className="w-[250px] px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {employee.full_name}
-                  </td>
-                  <td className="w-[250px] px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {employee.email}
-                  </td>
-                  <td className="w-[200px] px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {employee.job_title}
-                  </td>
-                  <td className="w-[200px] px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {employee.department}
-                  </td>
-                  <td className="w-[150px] px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(employee.start_date).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
+        <DataTable
+          columns={columns}
+          data={employees}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSort={handleSort}
+          onRowClick={handleRowClick}
+        />
         <div className="px-6 py-4 border-t border-gray-200">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-700">
@@ -255,6 +173,6 @@ export default function EmployeesPage() {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   )
 }

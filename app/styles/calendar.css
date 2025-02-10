@@ -1,0 +1,28 @@
+.sx-react-calendar-wrapper {
+  width: 100%;
+  height: 800px;
+  max-height: 90vh;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.sx-calendar {
+  --sx-color-primary: #3b82f6;
+  --sx-color-primary-hover: #2563eb;
+  --sx-color-text: #374151;
+  --sx-color-gray-600: #4b5563;
+  --sx-color-gray-400: #9ca3af;
+  --sx-color-gray-200: #e5e7eb;
+  --sx-font-family: 'Inter', sans-serif;
+  --sx-border-radius: 0.375rem;
+}
+
+.sx-calendar-event {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.sx-time-grid-event {
+  border-radius: var(--sx-border-radius);
+} 
