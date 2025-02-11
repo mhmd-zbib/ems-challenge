@@ -1,6 +1,6 @@
 import { useLoaderData } from "react-router";
 import { timesheetService } from "~/services/timesheetService";
-import { NavLink } from "~/components/NavLink";
+import { NavLink } from "~/components/common/NavLink";
 import { TimesheetDetailsHeader } from "~/components/timesheets/TimesheetDetailsHeader";
 import { TimesheetDetailsContent } from "~/components/timesheets/TimesheetDetailsContent";
 import { useTimesheetDetails } from "~/hooks/useTimesheetDetails";

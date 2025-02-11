@@ -1,6 +1,6 @@
 import { Form } from "react-router";
-import { Button } from "~/components/Button";
-import { FormInput } from "~/components/FormInput";
+import { Button } from "~/components/common/Button";
+import { FormInput } from "~/components/common/FormInput";
 import { useTimesheetForm } from "~/hooks/useTimesheetForm";
 import type { Employee } from "~/types/employee";
 import type { ValidationErrors } from "~/types/timesheet";

@@ -1,6 +1,6 @@
 import { useLoaderData } from "react-router";
 import '@schedule-x/theme-default/dist/index.css';
-import { PageLayout } from "~/components/PageLayout";
+import { PageLayout } from "~/components/common/PageLayout";
 import { timesheetService } from "~/services/timesheetService";
 import { TimesheetList } from "~/components/timesheets/TimesheetList";
 import { TimesheetCalendarView } from "~/components/timesheets/TimesheetCalendarView";

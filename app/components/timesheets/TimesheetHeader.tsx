@@ -1,6 +1,6 @@
-import { ViewToggle } from "~/components/ViewToggle";
-import { FilterDropdown } from "~/components/FilterDropdown";
-import { ContentHeader } from "~/components/ContentHeader";
+import { ViewToggle } from "~/components/common/ViewToggle";
+import { FilterDropdown } from "~/components/common/FilterDropdown";
+import { ContentHeader } from "~/components/common/ContentHeader";
 import type { Employee } from "~/types/employee";
 
 interface TimesheetHeaderProps {

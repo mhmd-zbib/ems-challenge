@@ -4,7 +4,7 @@ import { useEmployeeEdit } from "~/hooks/useEmployeeEdit";
 import { EmployeeHeader } from "~/components/employees/EmployeeHeader";
 import { EmployeeDetails } from "~/components/employees/EmployeeDetails";
 import { EmployeeDocuments } from "~/components/employees/EmployeeDocuments";
-import { NavLink } from "~/components/NavLink";
+import { NavLink } from "~/components/common/NavLink";
 import type { Employee } from "~/types/employee";
 
 export async function loader({ params }: any) {

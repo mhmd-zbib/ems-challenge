@@ -1,6 +1,6 @@
 import { useLoaderData, redirect, useActionData } from "react-router";
 import { timesheetService } from "~/services/timesheetService";
-import { NavLink } from "~/components/NavLink";
+import { NavLink } from "~/components/common/NavLink";
 import { NewTimesheetForm } from "~/components/timesheets/NewTimesheetForm";
 import type { Employee } from "~/types/employee";
 import type { ValidationErrors } from "~/types/timesheet";

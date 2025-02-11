@@ -3,7 +3,7 @@ import { validateEmployee, validateDocuments } from "~/utils/validation";
 import { employeeService } from "~/services/employeeService";
 import { NewEmployeeForm } from "~/components/employees/NewEmployeeForm";
 import type { ValidationErrors } from "~/types/employee";
-import { NavLink } from "~/components/NavLink";
+import { NavLink } from "~/components/common/NavLink";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();

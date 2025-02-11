@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
-import { DataTable } from "~/components/DataTable";
-import { Pagination } from "~/components/Pagination";
+import { DataTable } from "~/components/common/DataTable";
+import { Pagination } from "~/components/common/Pagination";
 import type { Timesheet } from "~/types/timesheet";
 
 interface TimesheetListProps {

@@ -1,4 +1,4 @@
-import { FormInput } from "~/components/FormInput";
+import { FormInput } from "~/components/common/FormInput";
 import type { Employee } from "~/types/employee";
 
 interface EmployeeDetailsProps {

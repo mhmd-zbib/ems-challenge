@@ -1,8 +1,8 @@
-import { FormInput } from "~/components/FormInput";
-import { Button } from "~/components/Button";
-import { FormContainer } from "~/components/Form";
-import { ImageUploadPreview } from "~/components/ImageUploadPreview";
-import { DocumentUpload } from "~/components/DocumentUpload";
+import { FormInput } from "~/components/common/FormInput";
+import { Button } from "~/components/common/Button";
+import { FormContainer } from "~/components/common/Form";
+import { ImageUploadPreview } from "~/components/common/ImageUploadPreview";
+import { DocumentUpload } from "~/components/common/DocumentUpload";
 import { useNewEmployeeForm } from "~/hooks/useNewEmployeeForm";
 import type { ValidationErrors } from "~/types/employee";
 

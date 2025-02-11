@@ -1,8 +1,8 @@
 import { useLoaderData } from "react-router"
 import { employeeService } from "~/services/employeeService"
-import { EmployeeList } from "~/components/EmployeeList"
-import { PageLayout } from "~/components/PageLayout"
-import { ContentHeader } from "~/components/ContentHeader"
+import { EmployeeList } from "~/components/common/EmployeeList"
+import { PageLayout } from "~/components/common/PageLayout"
+import { ContentHeader } from "~/components/common/ContentHeader"
 import { useListManagement } from "~/hooks/useListManagement"
 import type { Employee } from "~/types/employee"
 
