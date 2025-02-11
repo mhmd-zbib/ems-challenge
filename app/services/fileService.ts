@@ -27,19 +27,16 @@ export class FileService {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create unique filename
     const timestamp = Date.now();
     const extension = file.name.split('.').pop();
     const filename = `${prefix ? prefix + '_' : ''}${timestamp}.${extension}`;
     
-    // Ensure directory exists
     await fs.promises.mkdir(directory, { recursive: true });
     
-    // Save file
     const filepath = path.join(directory, filename);
     await writeFile(filepath, buffer);
     
-    // Return relative path from public directory
-    return filepath.replace('public', '');
+    const relativePath = filepath.split('public')[1].replace(/\\/g, '/');
+    return relativePath;
   }
-} 
+}

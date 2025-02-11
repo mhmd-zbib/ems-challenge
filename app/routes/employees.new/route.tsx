@@ -14,7 +14,6 @@ import { NavLink } from "~/components/NavLink";
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   
-  // Handle file uploads
   let photo_path: string | undefined;
 
   const photoFile = formData.get("photo") as File;
@@ -22,7 +21,6 @@ export const action: ActionFunction = async ({ request }) => {
   const idFile = formData.get("id_document") as File;
 
   try {
-    // Validate employee data first
     const employee = {
       full_name: formData.get("full_name") as string,
       email: formData.get("email") as string,
@@ -38,7 +36,6 @@ export const action: ActionFunction = async ({ request }) => {
       return { errors: employeeErrors };
     }
 
-    // Validate files if they exist
     if (cvFile?.size > 0 || idFile?.size > 0) {
       const fileErrors = validateDocuments({
         cv: cvFile,
@@ -50,12 +47,10 @@ export const action: ActionFunction = async ({ request }) => {
       }
     }
 
-    // Handle photo upload
     if (photoFile?.size > 0) {
       photo_path = await FileService.saveProfilePicture(photoFile);
     }
     
-    // Create employee
     const db = await getDB();
     const result = await db.run(
       `INSERT INTO employees (
@@ -77,7 +72,6 @@ export const action: ActionFunction = async ({ request }) => {
 
     const employeeId = result.lastID;
 
-    // Handle document uploads after employee creation
     const documentUploads = [];
 
     if (cvFile?.size > 0) {
@@ -104,7 +98,6 @@ export const action: ActionFunction = async ({ request }) => {
       );
     }
 
-    // Wait for all document uploads to complete
     if (documentUploads.length > 0) {
       await Promise.all(documentUploads);
     }

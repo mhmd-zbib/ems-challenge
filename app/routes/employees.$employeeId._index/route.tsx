@@ -4,7 +4,6 @@ import { NavLink } from "~/components/NavLink";
 import { Button } from "~/components/Button";
 import { FormInput } from "~/components/FormInput";
 import { useState } from "react";
-import { ImageUploadPreview } from "~/components/ImageUploadPreview";
 
 interface EmployeeDetails {
   documents_json: any;
@@ -55,7 +54,6 @@ export async function loader({ params }: any) {
       throw new Error("Employee not found");
     }
 
-    // Parse the documents JSON
     const documents = employee.documents_json
       ? JSON.parse(`[${employee.documents_json}]`)
       : [];
@@ -165,7 +163,6 @@ export default function EmployeePage() {
                 alt={employee.full_name}
                 className="w-32 h-32 rounded-full object-cover border-2 border-gray-200"
               />
-              {employee.photo_path}
             </div>
 
             <div className="flex-grow">
