@@ -1,11 +1,9 @@
 import { useLoaderData } from "react-router"
 import { employeeService } from "~/services/employeeService"
-import { useSearch } from "~/hooks/useSearch"
-import { useSort } from "~/hooks/useSort"
-import { usePagination } from "~/hooks/usePagination"
 import { EmployeeList } from "~/components/EmployeeList"
 import { PageLayout } from "~/components/PageLayout"
 import { ContentHeader } from "~/components/ContentHeader"
+import { useListManagement } from "~/hooks/useListManagement"
 import type { Employee } from "~/types/employee"
 
 interface LoaderData {
@@ -44,10 +42,15 @@ export async function loader({ request }: { request: Request }) {
 }
 
 export default function EmployeesPage() {
-  const { employees, total, page, totalPages } = useLoaderData<LoaderData>();
-  const { searchTerm, setSearchTerm, handleSearch } = useSearch();
-  const { sortBy, sortOrder, handleSort } = useSort();
-  const { buildPageUrl } = usePagination();
+  const { employees, page, totalPages, sortBy, sortOrder } = useLoaderData<LoaderData>();
+  
+  const {
+    searchTerm,
+    setSearchTerm,
+    handleSearch,
+    handleSort,
+    buildPageUrl,
+  } = useListManagement();
 
   return (
     <PageLayout 

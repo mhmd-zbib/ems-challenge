@@ -1,4 +1,5 @@
 import { getDB } from "~/db/getDB"
+import { employeeQueries } from "~/queries/employeeQueries"
 import type { Employee } from "~/types/employee"
 import { FileService } from "./fileService"
 
@@ -27,8 +28,7 @@ export const employeeService = {
     itemsPerPage = 10
   }: FetchEmployeesOptions): Promise<FetchEmployeesResult> {
     const db = await getDB()
-
-    let query = "SELECT * FROM employees WHERE 1=1"
+    let query = employeeQueries.fetchEmployees
     const params: any[] = []
 
     if (search) {
@@ -65,22 +65,7 @@ export const employeeService = {
     const db = await getDB();
 
     try {
-      const employee = await db.get<Employee>(`
-        SELECT 
-          e.*,
-          GROUP_CONCAT(
-            json_object(
-              'id', d.id,
-              'document_type', d.document_type,
-              'file_path', d.file_path,
-              'upload_date', d.upload_date
-            )
-          ) as documents_json
-        FROM employees e
-        LEFT JOIN documents d ON e.id = d.employee_id
-        WHERE e.id = ?
-        GROUP BY e.id
-      `, employeeId);
+      const employee = await db.get<Employee>(employeeQueries.fetchEmployeeDetails, employeeId);
 
       if (!employee) {
         throw new Error("Employee not found");
@@ -104,18 +89,7 @@ export const employeeService = {
     const db = await getDB();
 
     try {
-      await db.run(`
-        UPDATE employees 
-        SET 
-          full_name = ?,
-          email = ?,
-          phone_number = ?,
-          job_title = ?,
-          department = ?,
-          salary = ?,
-          photo_path = ?
-        WHERE id = ?
-      `,
+      await db.run(employeeQueries.updateEmployee,
         data.full_name,
         data.email,
         data.phone_number,
@@ -156,12 +130,7 @@ export const employeeService = {
       photo_path = await FileService.saveProfilePicture(photoFile);
     }
 
-    const result = await db.run(
-      `INSERT INTO employees (
-        full_name, email, date_of_birth, 
-        job_title, department, salary, 
-        start_date, photo_path
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    const result = await db.run(employeeQueries.createEmployee,
       [
         employee.full_name,
         employee.email,
@@ -181,24 +150,14 @@ export const employeeService = {
     if (cvFile?.size > 0) {
       const cvPath = await FileService.saveDocument(cvFile, 'CV');
       documentUploads.push(
-        db.run(
-          `INSERT INTO documents (
-            employee_id, document_type, file_path, upload_date
-          ) VALUES (?, 'CV', ?, CURRENT_TIMESTAMP)`,
-          [employeeId, cvPath]
-        )
+        db.run(employeeQueries.createDocument, [employeeId, cvPath])
       );
     }
 
     if (idFile?.size > 0) {
       const idPath = await FileService.saveDocument(idFile, 'ID');
       documentUploads.push(
-        db.run(
-          `INSERT INTO documents (
-            employee_id, document_type, file_path, upload_date
-          ) VALUES (?, 'ID', ?, CURRENT_TIMESTAMP)`,
-          [employeeId, idPath]
-        )
+        db.run(employeeQueries.createDocument, [employeeId, idPath])
       );
     }
 
