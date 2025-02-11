@@ -1,7 +1,7 @@
 # Employee Management System
 
 ## Overview
-A modern, responsive employee management system built with React and TypeScript, following clean architecture principles and separation of concerns. The application provides comprehensive employee and timesheet management capabilities with an intuitive user interface.
+An employee management system built with React and TypeScript, following clean architecture principles and separation of concerns. The application provides comprehensive employee and timesheet management capabilities.
 
 ## Key Features
 
@@ -19,11 +19,6 @@ A modern, responsive employee management system built with React and TypeScript,
   - Profile photo upload with preview
   - Status tracking (Active/Inactive)
 
-- **Document Management**
-  - Secure document upload
-  - Support for multiple file types (PDF, DOC, DOCX)
-  - Document preview capabilities
-  - Organized by document type
 
 ### Timesheet System
 - **Dual View Options**
@@ -65,7 +60,6 @@ A modern, responsive employee management system built with React and TypeScript,
 
 3. **Data Layer**
    - Type definitions
-   - API integration
    - Data fetching logic
 
 
@@ -81,12 +75,6 @@ A modern, responsive employee management system built with React and TypeScript,
 - React hooks for local state
 - Custom hooks for shared logic
 - Props for component communication
-
-### Styling
-- TailwindCSS for utility-first styling
-- Responsive design
-- Dark/Light mode support
-- Consistent component styling
 
 ### Performance Optimizations
 - Lazy loading of components
@@ -108,30 +96,11 @@ A modern, responsive employee management system built with React and TypeScript,
 - Strict null checks
 - Type guards where necessary
 
+
 ### Error Handling
 - Form validation
-- API error handling
 - User feedback
 - Graceful degradation
-
-### Code Quality
-- ESLint configuration
-- Prettier formatting
-- Consistent naming conventions
-- Component documentation
-
-## Security Features
-- Input sanitization
-- File upload validation
-- Type checking
-- Secure routing
-
-## Future Enhancements
-- Advanced reporting
-- Batch operations
-- Export functionality
-- Integration with external systems
-- Advanced analytics
 
 ## Development Guidelines
 1. Follow component composition patterns
