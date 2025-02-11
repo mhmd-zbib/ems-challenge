@@ -22,15 +22,6 @@ export function EmployeeDocuments({ documents }: EmployeeDocumentsProps) {
           title="ID Document"
           document={documentsByType['ID']}
         />
-        {documents
-          .filter(doc => !['CV', 'ID'].includes(doc.document_type))
-          .map(doc => (
-            <DocumentCard
-              key={doc.id}
-              title={doc.document_type}
-              document={doc}
-            />
-          ))}
       </div>
     </div>
   );

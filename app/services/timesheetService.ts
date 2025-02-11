@@ -9,6 +9,14 @@ import type {
 } from "~/types/timesheet";
 import type { Employee } from "~/types/employee";
 
+// Simple in-memory cache
+const cache = new Map<string, {
+  data: any,
+  timestamp: number
+}>();
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 interface FetchTimesheetsResult {
   timesheets: Timesheet[];
   total: number;
@@ -24,6 +32,13 @@ export const timesheetService = {
     employeeId = "",
     itemsPerPage = 10
   }: TimesheetFilters): Promise<FetchTimesheetsResult> {
+    const cacheKey = `timesheets-${page}-${search}-${sortBy}-${sortOrder}-${employeeId}`;
+    const cached = cache.get(cacheKey);
+
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data;
+    }
+
     const db = await getDB();
     let query = timesheetQueries.fetchTimesheets;
     const params: any[] = [];
@@ -38,28 +53,29 @@ export const timesheetService = {
       params.push(employeeId);
     }
 
-    const countResult = await db.get(
-      `SELECT COUNT(*) as count FROM (${query})`,
-      params
-    );
-    const total = countResult.count;
+    // Execute queries in parallel
+    const [countResult, timesheets] = await Promise.all([
+      db.get(`SELECT COUNT(*) as count FROM (${query})`, params),
+      db.all(`${query} ORDER BY ${sortBy} COLLATE NOCASE ${sortOrder.toUpperCase()} LIMIT ? OFFSET ?`,
+        [...params, itemsPerPage, (page - 1) * itemsPerPage])
+    ]);
 
-    query += ` ORDER BY ${sortBy} COLLATE NOCASE ${sortOrder.toUpperCase()}`;
-    query += ` LIMIT ? OFFSET ?`;
-    params.push(itemsPerPage, (page - 1) * itemsPerPage);
-
-    const timesheets = await db.all(query, params);
-    const totalPages = Math.ceil(total / itemsPerPage);
-
-    return {
+    const result = {
       timesheets: timesheets.map(timesheet => ({
         ...timesheet,
         start_time: new Date(timesheet.start_time).toISOString(),
         end_time: new Date(timesheet.end_time).toISOString(),
       })),
-      total,
-      totalPages
+      total: countResult.count,
+      totalPages: Math.ceil(countResult.count / itemsPerPage)
     };
+
+    cache.set(cacheKey, {
+      data: result,
+      timestamp: Date.now()
+    });
+
+    return result;
   },
 
   async fetchEmployees(): Promise<Employee[]> {
@@ -118,10 +134,42 @@ export const timesheetService = {
 
   async createTimesheet(data: CreateTimesheetData): Promise<void> {
     const db = await getDB();
-    await db.run(
-      `INSERT INTO timesheets (employee_id, start_time, end_time, summary) 
-       VALUES (?, ?, ?, ?)`,
-      [data.employeeId, data.startTime, data.endTime, data.summary]
-    );
+    
+    try {
+      await db.run('BEGIN TRANSACTION');
+
+      // Check for overlapping timesheets
+      const overlapping = await db.get(
+        `SELECT id FROM timesheets 
+         WHERE employee_id = ? 
+         AND start_time < ? 
+         AND end_time > ?
+         LIMIT 1`,
+        [data.employeeId, data.endTime, data.startTime]
+      );
+
+      if (overlapping) {
+        throw new Error('Overlapping timesheet exists');
+      }
+
+      await db.run(
+        `INSERT INTO timesheets (employee_id, start_time, end_time, summary) 
+         VALUES (?, ?, ?, ?)`,
+        [data.employeeId, data.startTime, data.endTime, data.summary]
+      );
+
+      await db.run('COMMIT');
+
+      // Invalidate cache
+      for (const key of cache.keys()) {
+        if (key.startsWith('timesheets-')) {
+          cache.delete(key);
+        }
+      }
+
+    } catch (error) {
+      await db.run('ROLLBACK');
+      throw error;
+    }
   }
 }; 

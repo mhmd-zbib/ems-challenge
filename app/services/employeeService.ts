@@ -3,6 +3,14 @@ import { employeeQueries } from "~/queries/employeeQueries"
 import type { Employee } from "~/types/employee"
 import { FileService } from "./fileService"
 
+// Simple in-memory cache implementation
+const cache = new Map<string, {
+  data: any,
+  timestamp: number
+}>();
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 interface FetchEmployeesOptions {
   page: number
   search?: string
@@ -27,38 +35,48 @@ export const employeeService = {
     department = "",
     itemsPerPage = 10
   }: FetchEmployeesOptions): Promise<FetchEmployeesResult> {
-    const db = await getDB()
-    let query = employeeQueries.fetchEmployees
-    const params: any[] = []
+    const cacheKey = `employees-${page}-${search}-${sortBy}-${sortOrder}-${department}`;
+    const cached = cache.get(cacheKey);
+
+    // Return cached data if valid
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.data;
+    }
+
+    const db = await getDB();
+    let query = employeeQueries.fetchEmployees;
+    const params: any[] = [];
 
     if (search) {
-      query += " AND (full_name LIKE ? OR email LIKE ? OR job_title LIKE ?)"
-      params.push(`%${search}%`, `%${search}%`, `%${search}%`)
+      query += " AND (full_name LIKE ? OR email LIKE ? OR job_title LIKE ?)";
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
     }
 
     if (department) {
-      query += " AND department = ?"
-      params.push(department)
+      query += " AND department = ?";
+      params.push(department);
     }
 
-    const countResult = await db.get(
-      `SELECT COUNT(*) as count FROM (${query})`,
-      params
-    )
-    const total = countResult.count
+    // Execute count and data fetch in parallel
+    const [countResult, employees] = await Promise.all([
+      db.get(`SELECT COUNT(*) as count FROM (${query})`, params),
+      db.all(`${query} ORDER BY ${sortBy} COLLATE NOCASE ${sortOrder.toUpperCase()} LIMIT ? OFFSET ?`, 
+        [...params, itemsPerPage, (page - 1) * itemsPerPage])
+    ]);
 
-    query += ` ORDER BY ${sortBy} COLLATE NOCASE ${sortOrder.toUpperCase()}`
-    query += ` LIMIT ? OFFSET ?`
-    params.push(itemsPerPage, (page - 1) * itemsPerPage)
-
-    const employees = await db.all(query, params)
-    const totalPages = Math.ceil(total / itemsPerPage)
-
-    return {
+    const result = {
       employees,
-      total,
-      totalPages
-    }
+      total: countResult.count,
+      totalPages: Math.ceil(countResult.count / itemsPerPage)
+    };
+
+    // Cache the result
+    cache.set(cacheKey, {
+      data: result,
+      timestamp: Date.now()
+    });
+
+    return result;
   },
 
   async fetchEmployeeDetails(employeeId: number | string) {
@@ -110,61 +128,54 @@ export const employeeService = {
   async createEmployee(formData: FormData) {
     const db = await getDB();
     
-    const employee = {
-      full_name: formData.get("full_name") as string,
-      email: formData.get("email") as string,
-      date_of_birth: formData.get("date_of_birth") as string,
-      job_title: formData.get("job_title") as string,
-      department: formData.get("department") as string,
-      salary: Number(formData.get("salary")),
-      start_date: formData.get("start_date") as string,
-    };
+    try {
+      await db.run('BEGIN TRANSACTION');
 
-    const photoFile = formData.get("photo") as File;
-    const cvFile = formData.get("cv") as File;
-    const idFile = formData.get("id_document") as File;
+      // Process files in parallel
+      const [photoFile, cvFile, idFile] = [
+        formData.get("photo") as File,
+        formData.get("cv") as File,
+        formData.get("id_document") as File
+      ];
 
-    let photo_path: string | undefined;
+      const [photoPath, cvPath, idPath] = await Promise.all([
+        photoFile?.size > 0 ? FileService.saveProfilePicture(photoFile) : null,
+        cvFile?.size > 0 ? FileService.saveDocument(cvFile, 'CV') : null,
+        idFile?.size > 0 ? FileService.saveDocument(idFile, 'ID') : null
+      ]);
 
-    if (photoFile?.size > 0) {
-      photo_path = await FileService.saveProfilePicture(photoFile);
+      const result = await db.run(employeeQueries.createEmployee, [
+        formData.get("full_name"),
+        formData.get("email"),
+        formData.get("date_of_birth"),
+        formData.get("job_title"),
+        formData.get("department"),
+        Number(formData.get("salary")),
+        formData.get("start_date"),
+        photoPath
+      ]);
+
+      if (cvPath || idPath) {
+        await Promise.all([
+          cvPath && db.run(employeeQueries.createDocument, [result.lastID, cvPath]),
+          idPath && db.run(employeeQueries.createDocument, [result.lastID, idPath])
+        ]);
+      }
+
+      await db.run('COMMIT');
+
+      // Invalidate cache after successful creation
+      for (const key of cache.keys()) {
+        if (key.startsWith('employees-')) {
+          cache.delete(key);
+        }
+      }
+
+      return result.lastID;
+
+    } catch (error) {
+      await db.run('ROLLBACK');
+      throw error;
     }
-
-    const result = await db.run(employeeQueries.createEmployee,
-      [
-        employee.full_name,
-        employee.email,
-        employee.date_of_birth,
-        employee.job_title,
-        employee.department,
-        employee.salary,
-        employee.start_date,
-        photo_path
-      ]
-    );
-
-    const employeeId = result.lastID;
-
-    const documentUploads = [];
-
-    if (cvFile?.size > 0) {
-      const cvPath = await FileService.saveDocument(cvFile, 'CV');
-      documentUploads.push(
-        db.run(employeeQueries.createDocument, [employeeId, cvPath])
-      );
-    }
-
-    if (idFile?.size > 0) {
-      const idPath = await FileService.saveDocument(idFile, 'ID');
-      documentUploads.push(
-        db.run(employeeQueries.createDocument, [employeeId, idPath])
-      );
-    }
-
-    if (documentUploads.length > 0) {
-      await Promise.all(documentUploads);
-    }
-
-    return employeeId;
   }
 }
