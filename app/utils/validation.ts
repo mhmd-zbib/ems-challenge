@@ -110,4 +110,56 @@ export function validateDocuments(files: {
   }
 
   return errors;
+}
+
+export function validateEmployeeField(field: string, value: string): string | undefined {
+  switch (field) {
+    case 'full_name':
+      if (!value.trim()) return 'Full name is required';
+      if (value.length < 2) return 'Full name must be at least 2 characters';
+      if (!/^[a-zA-Z\s'-]+$/.test(value)) return 'Full name can only contain letters, spaces, hyphens and apostrophes';
+      return undefined;
+
+    case 'email':
+      if (!value.trim()) return 'Email is required';
+      if (!/^[^@\s]+@[^@\s]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email address';
+      return undefined;
+
+    case 'date_of_birth': {
+      if (!value) return 'Date of birth is required';
+      const date = new Date(value);
+      const minAge = new Date();
+      minAge.setFullYear(minAge.getFullYear() - 18);
+      if (date > minAge) return 'Employee must be at least 18 years old';
+      return undefined;
+    }
+
+    case 'job_title':
+      if (!value.trim()) return 'Job title is required';
+      if (value.length < 2) return 'Job title must be at least 2 characters';
+      return undefined;
+
+    case 'department':
+      if (!value.trim()) return 'Department is required';
+      if (value.length < 2) return 'Department must be at least 2 characters';
+      return undefined;
+
+    case 'salary':
+      if (!value) return 'Salary is required';
+      const salary = Number(value);
+      if (isNaN(salary)) return 'Salary must be a number';
+      if (salary < 15000) return 'Salary must be at least 15,000';
+      return undefined;
+
+    case 'start_date':
+      if (!value) return 'Start date is required';
+      const startDate = new Date(value);
+      const today = new Date();
+      if (startDate < new Date('2000-01-01')) return 'Start date cannot be before 2000';
+      if (startDate > new Date(today.setMonth(today.getMonth() + 6))) return 'Start date cannot be more than 6 months in the future';
+      return undefined;
+
+    default:
+      return undefined;
+  }
 } 

@@ -1,28 +1,30 @@
 import { forwardRef } from 'react';
+import { Form as RouterForm } from 'react-router';
+import type { ComponentProps } from "react";
 
-interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
+interface FormContainerProps extends ComponentProps<typeof RouterForm> {
   error?: string;
 }
 
-export const FormContainer = forwardRef<HTMLFormElement, FormProps>(({ 
+export const FormContainer = forwardRef<HTMLFormElement, FormContainerProps>(({ 
+  children, 
   error,
-  className = "",
-  children,
+  className = "space-y-4",
   ...props 
 }, ref) => {
   return (
-    <form 
+    <RouterForm 
       {...props} 
       ref={ref}
-      className={`space-y-4 ${className}`}
+      className={className}
     >
       {error && (
-        <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
           {error}
         </div>
       )}
       {children}
-    </form>
+    </RouterForm>
   );
 });
 
