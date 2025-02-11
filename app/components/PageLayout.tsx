@@ -5,9 +5,10 @@ interface PageLayoutProps {
   title: string;
   addButtonLink?: string;
   addButtonText?: string;
+  currentPath: string
 }
 
-export function PageLayout({ children, title, addButtonLink, addButtonText }: PageLayoutProps) {
+export function PageLayout({ children, title, addButtonLink, addButtonText, currentPath }: PageLayoutProps) {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <nav className="bg-white shadow-sm mb-8 rounded-lg">
