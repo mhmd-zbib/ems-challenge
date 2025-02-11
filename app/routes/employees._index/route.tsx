@@ -2,12 +2,13 @@ import { useLoaderData, useNavigate, useSearchParams } from "react-router"
 import { getDB } from "~/db/getDB"
 import type { Employee } from "~/types/employee"
 import { useState } from "react"
-import { FormInput } from "~/components/form/FormInput"
-import { NavLink } from "~/components/navigation/NavLink"
-import { Button } from "~/components/form/Button"
-import { PageLayout } from "~/components/layout/PageLayout"
-import { ContentHeader } from "~/components/layout/ContentHeader"
-import { DataTable } from "~/components/table/DataTable"
+import { FormInput } from "~/components/FormInput"
+import { NavLink } from "~/components/NavLink"
+import { Button } from "~/components/Button"
+import { PageLayout } from "~/components/PageLayout"
+import { ContentHeader } from "~/components/ContentHeader"
+import { DataTable } from "~/components/DataTable"
+import {Pagination} from "~/components/Pagination";
 
 const ITEMS_PER_PAGE = 10
 
@@ -136,7 +137,6 @@ export default function EmployeesPage() {
         onSearchChange={(value) => setSearchTerm(value)}
         onSearch={handleSearch}
       />
-
       <div className="bg-white shadow rounded-lg">
         <DataTable
           columns={columns}
@@ -146,32 +146,11 @@ export default function EmployeesPage() {
           onSort={handleSort}
           onRowClick={handleRowClick}
         />
-        <div className="px-6 py-4 border-t border-gray-200">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-700">
-              Showing page <span className="font-medium">{page}</span> of{' '}
-              <span className="font-medium">{totalPages}</span>
-            </p>
-            <div className="flex gap-3">
-              {page > 1 && (
-                <NavLink
-                  href={buildPageUrl(page - 1)}
-                  className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  Previous
-                </NavLink>
-              )}
-              {page < totalPages && (
-                <NavLink
-                  href={buildPageUrl(page + 1)}
-                  className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-                >
-                  Next
-                </NavLink>
-              )}
-            </div>
-          </div>
-        </div>
+        <Pagination
+            page={page}
+            totalPages={totalPages}
+            buildPageUrl={buildPageUrl}
+        />
       </div>
     </PageLayout>
   )

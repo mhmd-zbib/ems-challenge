@@ -40,7 +40,6 @@ export function ImageUploadPreview({ onChange, error }: ImageUploadPreviewProps)
 
   return (
     <div className="flex flex-col items-center space-y-4">
-      {/* Avatar Container */}
       <div className="relative inline-block">
         {preview ? (
           <div className="relative">
@@ -79,7 +78,6 @@ export function ImageUploadPreview({ onChange, error }: ImageUploadPreviewProps)
         )}
       </div>
 
-      {/* Upload Controls */}
       <div className="flex flex-col items-center space-y-2">
         <input
           ref={fileInputRef}

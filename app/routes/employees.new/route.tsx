@@ -2,14 +2,14 @@ import { redirect, useActionData, type ActionFunction } from "react-router";
 import { getDB } from "~/db/getDB";
 import { validateEmployee, validateDocuments } from "~/utils/validation";
 import { FileService } from "~/services/fileService";
-import { ImageUploadPreview } from "~/components/form/ImageUploadPreview";
-import { FormInput } from "~/components/form/FormInput";
-import { Button } from "~/components/form/Button";
-import { FormContainer } from "~/components/form/Form";
+import { ImageUploadPreview } from "~/components/ImageUploadPreview";
+import { FormInput } from "~/components/FormInput";
+import { Button } from "~/components/Button";
+import { FormContainer } from "~/components/Form";
 import type { ValidationErrors } from "~/types/employee";
 import { useState, useRef } from "react";
-import { DocumentUpload } from "~/components/form/DocumentUpload";
-import { NavLink } from "~/components/navigation/NavLink";
+import { DocumentUpload } from "~/components/DocumentUpload";
+import { NavLink } from "~/components/NavLink";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -112,8 +112,7 @@ export const action: ActionFunction = async ({ request }) => {
     return redirect("/employees");
   } catch (error) {
     console.error('Error creating employee:', error);
-    
-    // Handle specific errors
+
     if (error instanceof Error) {
       if (error.message.includes('SQLITE_CONSTRAINT')) {
         if (error.message.includes('email')) {
@@ -264,11 +263,7 @@ export default function NewEmployeePage() {
             Create Employee
           </Button>
         </div>
-
       </FormContainer>
-
-
-
     </div>
   );
 }

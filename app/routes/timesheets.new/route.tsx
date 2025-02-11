@@ -1,8 +1,8 @@
 import { useLoaderData, Form, redirect, useActionData } from "react-router";
-import { Button } from "~/components/form/Button";
-import { FormInput } from "~/components/form/FormInput";
+import { Button } from "~/components/Button";
+import { FormInput } from "~/components/FormInput";
 import { getDB } from "~/db/getDB";
-import { NavLink } from "~/components/navigation/NavLink";
+import { NavLink } from "~/components/NavLink";
 import { useState, useEffect } from "react";
 
 interface Employee {
@@ -28,7 +28,7 @@ export const action = async ({ request }: { request: Request }) => {
   const employeeId = formData.get("employee_id");
   const startTime = formData.get("start_time");
   const endTime = formData.get("end_time");
-  const notes = formData.get("notes");
+  const summary = formData.get("notes");
 
   const errors: ValidationErrors = {};
 
@@ -66,7 +66,7 @@ export const action = async ({ request }: { request: Request }) => {
   try {
     const db = await getDB();
     
-    // Check if employee exists
+
     const employee = await db.get("SELECT id FROM employees WHERE id = ?", employeeId);
     if (!employee) {
       return {
@@ -76,7 +76,7 @@ export const action = async ({ request }: { request: Request }) => {
       };
     }
 
-    // Check for overlapping timesheets
+
     const overlapping = await db.get(
       `SELECT id FROM timesheets 
        WHERE employee_id = ? 
@@ -97,9 +97,9 @@ export const action = async ({ request }: { request: Request }) => {
     }
 
     await db.run(
-      `INSERT INTO timesheets (employee_id, start_time, end_time, notes) 
+      `INSERT INTO timesheets (employee_id, start_time, end_time, summary) 
        VALUES (?, ?, ?, ?)`,
-      [employeeId, startTime, endTime, notes]
+      [employeeId, startTime, endTime, summary]
     );
 
     return redirect("/timesheets");
@@ -120,7 +120,7 @@ export default function NewTimesheetPage() {
   const [clientErrors, setClientErrors] = useState<ValidationErrors>({});
   const [notes, setNotes] = useState("");
 
-  // Client-side validation
+
   const validateForm = () => {
     const errors: ValidationErrors = {};
     

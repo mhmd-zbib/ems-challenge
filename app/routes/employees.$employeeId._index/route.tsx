@@ -1,10 +1,10 @@
 import { useLoaderData, useNavigate } from "react-router";
 import { getDB } from "~/db/getDB";
-import { NavLink } from "~/components/navigation/NavLink";
-import { Button } from "~/components/form/Button";
-import { FormInput } from "~/components/form/FormInput";
+import { NavLink } from "~/components/NavLink";
+import { Button } from "~/components/Button";
+import { FormInput } from "~/components/FormInput";
 import { useState } from "react";
-import { ImageUploadPreview } from "~/components/form/ImageUploadPreview";
+import { ImageUploadPreview } from "~/components/ImageUploadPreview";
 
 interface EmployeeDetails {
   documents_json: any;
@@ -34,7 +34,6 @@ export async function loader({ params }: any) {
   const db = await getDB();
 
   try {
-    // Get employee details with a LEFT JOIN to include documents
     const employee = await db.get<EmployeeDetails>(`
       SELECT 
         e.*,
@@ -71,7 +70,6 @@ export async function loader({ params }: any) {
   }
 }
 
-// Add action for handling form submission
 export async function action({ request, params }: any) {
   const formData = await request.formData();
   const db = await getDB();
@@ -133,7 +131,7 @@ export default function EmployeePage() {
         body: form,
       });
       setIsEditing(false);
-      navigate('.', { replace: true }); // Refresh the page
+      navigate('.', { replace: true });
     } catch (error) {
       console.error('Failed to save:', error);
     }
@@ -146,7 +144,6 @@ export default function EmployeePage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Employee Details</h1>
         <div className="flex space-x-4 items-center">
@@ -168,9 +165,9 @@ export default function EmployeePage() {
                 alt={employee.full_name}
                 className="w-32 h-32 rounded-full object-cover border-2 border-gray-200"
               />
+              {employee.photo_path}
             </div>
 
-            {/* Basic Info */}
             <div className="flex-grow">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -355,7 +352,6 @@ export default function EmployeePage() {
             </div>
           </div>
 
-          {/* Other Documents */}
           {employee.documents
             .filter(doc => !['CV', 'ID'].includes(doc.document_type))
             .map(doc => (

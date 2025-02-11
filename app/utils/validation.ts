@@ -3,7 +3,6 @@ import type { NewEmployee, ValidationErrors } from "~/types/employee";
 export const validateEmployee = (employee: Partial<NewEmployee>): ValidationErrors => {
   const errors: ValidationErrors = {};
 
-  // Required fields with database constraints
   if (!employee.full_name?.trim()) {
     errors.full_name = "Full name is required";
   }
@@ -11,7 +10,6 @@ export const validateEmployee = (employee: Partial<NewEmployee>): ValidationErro
   if (!employee.email?.trim()) {
     errors.email = "Email is required";
   } else {
-    // Match SQL CHECK constraint: email LIKE '%_@__%.__%'
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!emailRegex.test(employee.email)) {
       errors.email = "Invalid email format";
@@ -21,7 +19,6 @@ export const validateEmployee = (employee: Partial<NewEmployee>): ValidationErro
   if (!employee.date_of_birth) {
     errors.date_of_birth = "Date of birth is required";
   } else {
-    // Application-level age validation
     const birthDate = new Date(employee.date_of_birth);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -47,7 +44,6 @@ export const validateEmployee = (employee: Partial<NewEmployee>): ValidationErro
   if (!employee.salary) {
     errors.salary = "Salary is required";
   } else {
-    // Match SQL CHECK constraint: salary >= 15000
     if (employee.salary < 15000) {
       errors.salary = "Salary must be at least 15000";
     }
@@ -56,13 +52,11 @@ export const validateEmployee = (employee: Partial<NewEmployee>): ValidationErro
   if (!employee.start_date) {
     errors.start_date = "Start date is required";
   } else if (employee.end_date) {
-    // Match SQL CHECK constraint: start_date <= COALESCE(end_date, start_date)
     if (new Date(employee.start_date) > new Date(employee.end_date)) {
       errors.start_date = "Start date must be before end date";
     }
   }
 
-  // Optional fields validation
   if (employee.phone_number) {
     const phoneRegex = /^\+?[\d\s-]{10,}$/;
     if (!phoneRegex.test(employee.phone_number)) {

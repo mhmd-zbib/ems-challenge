@@ -1,4 +1,4 @@
-import { NavLink } from "~/components/navigation/NavLink";
+import { NavLink } from "~/components/NavLink";
 
 interface PageLayoutProps {
   children: React.ReactNode;

@@ -1,6 +1,6 @@
 import { useLoaderData } from "react-router";
 import { getDB } from "~/db/getDB";
-import { NavLink } from "~/components/navigation/NavLink";
+import { NavLink } from "~/components/NavLink";
 
 interface TimesheetDetails {
   id: number;

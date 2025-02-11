@@ -1,4 +1,4 @@
-import { Button } from "~/components/form/Button";
+import { Button } from "~/components/Button";
 
 interface ViewToggleProps {
   isTableView: boolean;

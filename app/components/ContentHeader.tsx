@@ -1,5 +1,5 @@
-import { Button } from "~/components/form/Button";
-import { FormInput } from "~/components/form/FormInput";
+import { Button } from "~/components/Button";
+import { FormInput } from "~/components/FormInput";
 
 interface ContentHeaderProps {
   title: string;

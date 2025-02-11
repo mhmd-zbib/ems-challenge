@@ -9,20 +9,17 @@ const __dirname = path.dirname(__filename);
 async function setupDatabase() {
   try {
     const db = await getDB();
-    
-    // Read the SQL setup file
+
     const setupSQL = fs.readFileSync(
       path.join(__dirname, 'setup.sql'),
       'utf8'
     );
 
-    // Split the SQL into individual statements
     const statements = setupSQL
       .split(';')
       .map(statement => statement.trim())
       .filter(statement => statement.length > 0);
 
-    // Execute each statement
     for (const statement of statements) {
       await db.exec(statement);
     }
